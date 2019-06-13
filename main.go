@@ -13,7 +13,7 @@ import (
 var port string
 
 func main() {
-	viper.SetConfigName("global")
+	viper.SetConfigName("server")
 	viper.AddConfigPath("./config")
 
 	err := viper.ReadInConfig()
