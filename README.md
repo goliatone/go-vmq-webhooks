@@ -5,7 +5,7 @@ Go server implementation to handle [VerneMQ](https://vernemq.com/) [webhooks plu
 
 # Development
 
-You need to have a working Go setup.
+You need to have a working Go setup, project was developed using `go1.12.5`.
 
 The VerneMQ project has good [documentation](https://docs.vernemq.com/) which should get you started.
 
