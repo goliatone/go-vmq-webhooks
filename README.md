@@ -16,6 +16,6 @@ $ docker run --name vernemq1 \
   -p 1883:1883 \
   -p 8888:8888 \
   -p 9001:9001 \
-  -v ./config/v/vernemq.conf:/etc/vernemq/vernemq.conf \
+  -v ./config/vernemq.conf:/etc/vernemq/vernemq.conf \
   -d erlio/docker-vernemq
 ```
