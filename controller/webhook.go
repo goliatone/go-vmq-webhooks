@@ -2,7 +2,6 @@ package controller
 
 import (
 	"fmt"
-	"encoding/base64"
 	"github.com/goliatone/go-vmq-webhooks/model"
 
 	"github.com/gin-gonic/gin"
@@ -35,7 +34,7 @@ import (
 func AuthOnRegister(c *gin.Context) {
 	fmt.Println("Auth on register")
 	ok := model.Reply{
-		Result:"ok",
+		Result: "ok",
 	}
 	c.JSON(200, ok)
 }
@@ -69,10 +68,23 @@ func AuthOnPublish(c *gin.Context) {
 //           "qos": 0}]
 // }
 func AuthOnSubscribe(c *gin.Context) {
-	fmt.Println("auth on subscrbe")
+	fmt.Println("=> auth on subscrbe")
+
+	var m model.OnSubscribe
+	c.BindJSON(&m)
+
+	fmt.Printf("client id: %s username: %s mountpoint: %s\n",
+	m.ClientID ,
+	m.Username ,
+	m.Mountpoint)
+	for _, topic := range m.Topics {
+		fmt.Printf("topic: %s QoS: %d\n", topic.Topic, topic.QoS)
+	}
+
 	ok := model.Reply{
 		Result:"ok",
 	}
+
 	c.JSON(200, ok)
 }
 
@@ -91,12 +103,16 @@ func OnPublish(c *gin.Context) {
 	m.Topic ,
 	m.Payload)
 	
-	s := m.Payload.(string)
-	data, err := base64.StdEncoding.DecodeString(s)
+	//Payload is base64 encoded
+	// s := m.Payload.(string)
+	// data, err := base64.StdEncoding.DecodeString(s)
+	// if err != nil {
+	// 	fmt.Printf("error decoding: %s", err)
+	// }
+	data, err := m.DecodePayload()
 	if err != nil {
 		fmt.Printf("error decoding: %s", err)
 	}
-
 	fmt.Printf("payload: %s\n", data)
 
 	ok := model.Reply{
