@@ -1,7 +1,7 @@
 package model
 
 import (
-	"fmt"
+	"errors"
 	"encoding/base64"
 )
 //TODO: missing all the _m5 endpoints
@@ -70,6 +70,20 @@ type UnsubscribeReply struct {
 	Topics []string `json:"topics,omitempty"`
 }
 
+// OnDeliverReply ...
+// {
+// 	"result": "ok",
+// 	"modifiers":
+// 	{
+// 		  "topic": "rewritten/topic",
+// 		  "payload": "rewritten payload"
+// 	  }
+//   }
+type OnDeliverReply struct {
+	Result string `json:"result"`
+	Modifiers Modifier `json:"modifiers,omitempty"`
+}
+
 //ErrorReply result
 type ErrorReply struct {
 	Result ErrorMessage `json:"result"`
@@ -130,21 +144,6 @@ type OnUnsubscribe struct {
 	Topics []string `json:"topics,omitempty"`
 }
 
-//Payload ...
-type Payload string
-
-//UnmarshalJSON ...
-func (i *Payload) UnmarshalJSON(b []byte) error {
-	
-	data, err := base64.StdEncoding.DecodeString(string(b))
-    if err != nil {
-        return err
-	}
-	fmt.Printf("payload %s\n", data)
-
-	*i = Payload(data)
-	return nil
-}
 //OnPublish ...
 // {
 //     "username": "username",
@@ -165,6 +164,19 @@ type OnPublish struct {
 	ClientID string `json:"client_id,omitempty"`	
 	Username string `json:"username,omitempty"`	
 }
+func (m OnPublish) DecodePayload()([]byte, error) {
+	s, ok := m.Payload.(string)
+	if ok == false {
+		return nil, errors.New("Wrong type")
+	}
+
+	data, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
+}
 
 //OnDeliver ...
 type OnDeliver struct {
@@ -174,6 +186,19 @@ type OnDeliver struct {
 	Topic string `json:"topic,omitempty"`
 	//This is base64
 	Payload interface{} `json:"payload,omitempty"`
+}
+func (m OnDeliver) DecodePayload()([]byte, error) {
+	s, ok := m.Payload.(string)
+	if ok == false {
+		return nil, errors.New("Wrong type")
+	}
+
+	data, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // OnOfflineMessage ...
@@ -185,6 +210,19 @@ type OnOfflineMessage struct {
 	Retain bool `json:"retain,omitempty"`
 	Mountpoint string `json:"mountpoint,omitempty"`
 	ClientID string `json:"client_id,omitempty"`	
+}
+func (m OnOfflineMessage) DecodePayload()([]byte, error) {
+	s, ok := m.Payload.(string)
+	if ok == false {
+		return nil, errors.New("Wrong type")
+	}
+
+	data, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
 
 // OnClientWakeUp ...
@@ -202,21 +240,6 @@ type OnClientOffline struct {
 type OnClienGone struct {
 	OnClientWakeUp
 }
-
-// OnDeliverReply ...
-// {
-// 	"result": "ok",
-// 	"modifiers":
-// 	{
-// 		  "topic": "rewritten/topic",
-// 		  "payload": "rewritten payload"
-// 	  }
-//   }
-type OnDeliverReply struct {
-	Result string `json:"result"`
-	Modifiers Modifier `json:"modifiers,omitempty"`
-}
-
 
 //AuthOnRegister is the payload for auth_on_register
 // {
@@ -270,4 +293,17 @@ type AuthOnPublish struct {
 	Mountpoint string `json:"mountpoint,omitempty"`
 	ClientID string `json:"client_id,omitempty"`	
 	Username string `json:"username,omitempty"`
+}
+func (m AuthOnPublish) DecodePayload()([]byte, error) {
+	s, ok := m.Payload.(string)
+	if ok == false {
+		return nil, errors.New("Wrong type")
+	}
+
+	data, err := base64.StdEncoding.DecodeString(s)
+	if err != nil {
+		return nil, err
+	}
+
+	return data, nil
 }
